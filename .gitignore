@@ -1,0 +1,14 @@
+# Environment files
+.env
+
+# Build binaries
+Chirpy
+
+# IDE files
+.vscode/
+
+# OS files
+.DS_Store
+
+# OUT files
+out
