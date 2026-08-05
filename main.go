@@ -64,6 +64,10 @@ func main() {
 
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
 
+	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsGet)
+
+	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerChirpsGetByID)
+
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
 
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
@@ -76,9 +80,7 @@ func main() {
 
 	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
 
-	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsGet)
-
-	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerChirpsGetByID)
+	mux.HandleFunc("PUT /api/users", apiCfg.handlerUserUpdate)
 
 	server := &http.Server{
 		Addr:    ":" + port,
