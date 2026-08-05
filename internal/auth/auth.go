@@ -1,6 +1,12 @@
 package auth
 
-import "github.com/alexedwards/argon2id"
+import (
+	"errors"
+	"net/http"
+	"strings"
+
+	"github.com/alexedwards/argon2id"
+)
 
 func HashPassword(password string) (string, error) {
 	hash, err := argon2id.CreateHash(password, argon2id.DefaultParams)
@@ -17,4 +23,18 @@ func CheckPasswordHash(password, hash string) (bool, error) {
 	}
 
 	return match, nil
+}
+
+func GetAPIKey(headers http.Header) (string, error) {
+	authHeader := headers.Get("Authorization")
+	if authHeader == "" {
+		return "", errors.New("missing Authorization header")
+	}
+
+	splitAuth := strings.Split(authHeader, " ")
+	if len(splitAuth) < 2 || splitAuth[0] != "ApiKey" {
+		return "", errors.New("malformed authorization header")
+	}
+
+	return splitAuth[1], nil
 }
