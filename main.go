@@ -72,7 +72,7 @@ func main() {
 
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
 
-	mux.HandleFunc("POST /api/users", apiCfg.handlerUserCreation)
+	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreation)
 
 	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
 
@@ -80,7 +80,9 @@ func main() {
 
 	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
 
-	mux.HandleFunc("PUT /api/users", apiCfg.handlerUserUpdate)
+	mux.HandleFunc("PUT /api/users", apiCfg.handlerUsersUpdate)
+
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.handlerChirpsDelete)
 
 	server := &http.Server{
 		Addr:    ":" + port,

@@ -8,7 +8,7 @@ import (
 	"github.com/ModstDev/Chirpy/internal/database"
 )
 
-func (cfg *apiConfig) handlerUserUpdate(w http.ResponseWriter, r *http.Request) {
+func (cfg *apiConfig) handlerUsersUpdate(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
