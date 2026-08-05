@@ -3,15 +3,45 @@ package main
 import (
 	"net/http"
 
+	"github.com/ModstDev/Chirpy/internal/database"
 	"github.com/google/uuid"
 )
 
 func (cfg *apiConfig) handlerChirpsGet(w http.ResponseWriter, r *http.Request) {
-	chirps, err := cfg.db.GetChirps(r.Context())
+	var chirps []database.Chirp
+	var err error
+
+	//
+	authorID := r.URL.Query().Get("author_id")
+	if authorID != "" {
+		userID, parseErr := uuid.Parse(authorID)
+		if parseErr != nil {
+			respondWithError(
+				w,
+				http.StatusBadRequest,
+				"Invalid author_id",
+				parseErr,
+			)
+			return
+		}
+
+		chirps, err = cfg.db.GetChirpsByUserID(
+			r.Context(),
+			userID,
+		)
+	} else {
+		chirps, err = cfg.db.GetChirps(r.Context())
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't get chirps", err)
+			return
+		}
+	}
+
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't get chirps", err)
 		return
 	}
+	//
 
 	response := []Chirp{}
 
