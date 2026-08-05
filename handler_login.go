@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/ModstDev/Chirpy/internal/auth"
+	"github.com/ModstDev/Chirpy/internal/database"
 )
 
 func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 
 	type parameters struct {
-		Email            string `json:"email"`
-		Password         string `json:"password"`
-		ExpiresInSeconds int    `json:"expires_in_seconds"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 	type response struct {
 		User
@@ -42,20 +42,18 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expiresIn := time.Hour
-	if params.ExpiresInSeconds > 0 {
-		requested := time.Duration(params.ExpiresInSeconds) * time.Second
-
-		if requested < expiresIn {
-			expiresIn = requested
-		}
-	}
-
-	token, err := auth.MakeJWT(dbUser.ID, cfg.secretKey, expiresIn)
+	token, err := auth.MakeJWT(dbUser.ID, cfg.secretKey, time.Hour)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't generate JWT", err)
 		return
 	}
+
+	refreshToken := auth.MakeRefreshToken()
+	_, err = cfg.db.CreateRefreshToken(r.Context(), database.CreateRefreshTokenParams{
+		Token:     refreshToken,
+		UserID:    dbUser.ID,
+		ExpiresAt: time.Now().UTC().Add(60 * 24 * time.Hour),
+	})
 
 	respondWithJSON(w, http.StatusOK, response{
 		User: User{
@@ -64,6 +62,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 			UpdatedAt: dbUser.UpdatedAt,
 			Email:     dbUser.Email,
 		},
-		Token: token,
+		Token:        token,
+		RefreshToken: refreshToken,
 	})
 }
